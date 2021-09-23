@@ -4,7 +4,7 @@ import random
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm
 from django import forms
 
-from users.models import User
+from users.models import User, ShopUserProfile
 
 
 class UserLoginForm(AuthenticationForm):
@@ -46,12 +46,27 @@ class UserRegistrationForm(UserCreationForm):
 
 
 class UserProfileForm(UserChangeForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-4', 'readonly': True}))
-    email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control py-4', 'readonly': True}))
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-4'}))
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-4'}))
-    image = forms.ImageField(widget=forms.FileInput(attrs={'class': 'custom-file-input'}), required=False)
+    avatar = forms.ImageField(widget=forms.FileInput, required=False)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'image')
+        fields = ('first_name', 'last_name', 'avatar', 'username', 'email')
+
+    def __init__(self, *args, **kwargs):
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs['readonly'] = True
+        self.fields['email'].widget.attrs['readonly'] = True
+        for fild_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control py-4'
+        self.fields['avatar'].widget.attrs['class'] = 'custom-file-input'
+
+
+class UserProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = ShopUserProfile
+        fields = ('tagline', 'aboutme', 'gender')
+
+    def __init__(self, *args, **kwargs):
+        super(UserProfileEditForm, self).__init__(*args, **kwargs)
+        for fild_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control py-4'
