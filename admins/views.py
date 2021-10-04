@@ -5,6 +5,7 @@ from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.utils.decorators import method_decorator
 
+from products.models import Product
 from users.models import User
 from admins.forms import UserAdminRegisterForm, UserAdminProfileForm
 
@@ -52,3 +53,10 @@ class UserDeleteView(DeleteView):
         self.object.is_active = False
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ProductsListView(ListView):
+    model = Product
+    context_object_name = 'products'
+    template_name = 'admins/product_list.html'
+    success_url = reverse_lazy('admins:admin_users')
