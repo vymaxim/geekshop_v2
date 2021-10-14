@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.core.mail import send_mail
@@ -112,7 +113,7 @@ class UserLogoutView(LogoutView):
 #     context = {'title': 'GeekShop - Регистрация', 'form': form}
 #     return render(request, 'users/register.html', context)
 
-
+@login_required
 @transaction.atomic
 def profile(request):
     if request.method == 'POST':

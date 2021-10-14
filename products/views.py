@@ -1,8 +1,34 @@
+from django.conf import settings
+from django.core.cache import cache
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 
 from common.views import CommonContextMixin
 from products.models import Product, ProductCategory
+
+
+def get_links_menu():
+    if settings.LOW_CACHE:
+        key = 'links_menu'
+        links_menu = cache.get(key)
+        if links_menu is None:
+            links_menu = ProductCategory.objects.all()
+            cache.set(key, links_menu)
+        return links_menu
+    else:
+        return ProductCategory.objects.all()
+
+
+def get_products():
+    if settings.LOW_CACHE:
+        key = 'products'
+        products = cache.get(key)
+        if products is None:
+            products = Product.objects.filter(is_active=True, category__is_active=True).select_related('category')
+            cache.set(key, products)
+        return products
+    else:
+        return Product.objects.filter(is_active=True, category__is_active=True).select_related('category')
 
 
 class IndexView(CommonContextMixin, TemplateView):
@@ -23,7 +49,7 @@ class ProductsListView(CommonContextMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ProductsListView, self).get_context_data(**kwargs)
-        context['categories'] = ProductCategory.objects.all()
+        context['categories'] = get_links_menu()
         return context
 
 # def index(request):
